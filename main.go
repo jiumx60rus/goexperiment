@@ -1,28 +1,44 @@
 package main
 
 import (
-	// "fmt"
+	"fmt"
 	"github.com/veandco/go-sdl2/sdl"
 	"math"
 	"os"
 )
 
+const x = math.Pi / 180
+
+func Rad(d float64) float64 { return d * x }
+func Deg(r float64) float64 { return r / x }
+
 var (
-	winTitle string = "Моделирование жидкости"
+	winTitle      string  = "SIN"
+	width, height int     = 1024, 720
+	w             float64 = float64(width) / 2
+	h             float64 = float64(height) / 2
+
+	fps           uint32 = 60         //Кол-во кадров
+	fpsMill       uint32 = 1000 / fps //В один кадр в мс
+	currentSpeed  uint32 = 0          //Время ожиданиия после выполнения цикла примера
+	currentTime   uint32 = 0          //Вреся перед началом запуска игрового цикла
+	countedFrames int    = 0          //Кадров в сек
 
 	particles [5]int
 	speed     int = 30
 	partNum   int = 1000
+
+	window   *sdl.Window
+	renderer *sdl.Renderer
+	event    sdl.Event
 )
 
-func run() int {
-	var window *sdl.Window
-	var renderer *sdl.Renderer
-	// var points []sdl.Point
-	// var rect sdl.Rect
-	// var rects []sdl.Rect
+func main() {
+	os.Exit(run())
+}
 
-	window, err := sdl.CreateWindow(winTitle, sdl.WINDOWPOS_CENTERED, sdl.WINDOWPOS_CENTERED, 1024, 720, 0)
+func run() int {
+	window, err := sdl.CreateWindow(winTitle, sdl.WINDOWPOS_CENTERED, sdl.WINDOWPOS_CENTERED, width, height, sdl.WINDOW_SHOWN)
 	if err != nil {
 		return 1
 	}
@@ -34,47 +50,48 @@ func run() int {
 		return 2
 	}
 	defer renderer.Destroy()
-	// Иначе будет отображенно, что под окном
-	renderer.Clear()
 
-	renderer.SetDrawColor(255, 255, 255, 255)
-	renderer.DrawPoint(150, 300)
+	//Главный цикл
+	for {
+		currentTime = sdl.GetTicks()
 
-	for i := 0; i < 800; i++ {
-		var y float64 = float64(i) * math.Sin(float64(i))
-		renderer.DrawPoint(i, int(y))
+		//Step
+		step()
+		window.SetTitle(winTitle + " Кадр: " + fmt.Sprint(countedFrames))
+		countedFrames++
+
+		currentSpeed = sdl.GetTicks() - currentTime
+		if fpsMill > currentSpeed {
+			// sdl.Delay(1000)
+			sdl.Delay(fpsMill - currentSpeed)
+		}
 	}
-
-	// renderer.SetDrawColor(0, 0, 255, 255)
-	// renderer.DrawLine(0, 0, 200, 200)
-
-	// points = []sdl.Point{{0, 0}, {100, 300}, {100, 300}, {200, 0}}
-	// renderer.SetDrawColor(255, 255, 0, 255)
-	// renderer.DrawLines(points)
-
-	// rect = sdl.Rect{300, 0, 200, 200}
-	// renderer.SetDrawColor(255, 0, 0, 255)
-	// renderer.DrawRect(&rect)
-
-	// rects = []sdl.Rect{{400, 400, 100, 100}, {550, 350, 200, 200}}
-	// renderer.SetDrawColor(0, 255, 255, 255)
-	// renderer.DrawRects(rects)
-
-	// rect = sdl.Rect{250, 250, 200, 200}
-	// renderer.SetDrawColor(0, 255, 0, 255)
-	// renderer.FillRect(&rect)
-
-	// rects = []sdl.Rect{{500, 300, 100, 100}, {200, 300, 200, 200}}
-	// renderer.SetDrawColor(255, 0, 255, 255)
-	// renderer.FillRects(rects)
-
-	renderer.Present()
-
-	sdl.Delay(2000)
 
 	return 0
 }
 
-func main() {
-	os.Exit(run())
+func step() {
+
+	// Иначе будет отображенно, что под окном
+	renderer.Clear()
+
+	for event = sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
+		switch event.(type) {
+		case *sdl.MouseButtonEvent:
+			os.Exit(1)
+		}
+	}
+
+	renderer.SetDrawColor(90, 140, 70, 255)
+
+	for t := 0; t <= width; t++ {
+		var x int = t
+		var y int = int(100 * math.Sin(float64(x*100)+float64(countedFrames/4)))
+		// fmt.Fprintf(os.Stderr, fmt.Sprint(float64(countedFrames/3))+"\n")
+		renderer.DrawPoint(x, y+360)
+	}
+
+	// Цвет фона
+	renderer.SetDrawColor(51, 51, 51, 255)
+	renderer.Present()
 }
