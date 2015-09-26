@@ -13,11 +13,9 @@ env:
     - BUILD_GOARCH=amd64
   matrix:
     - BUILD_GOOS=linux
-    - BUILD_GOOS=darwin
-    - BUILD_GOOS=windows
 script:
   - gvm cross $BUILD_GOOS $BUILD_GOARCH
-  - GOARCH=$BUILD_GOARCH GOOS=$BUILD_GOOS go build
+  - GOARCH=$BUILD_GOARCH GOOS=$BUILD_GOOS go test
 
   # only test on linux
   - if [ $BUILD_GOOS == "linux" ]; then GOARCH=$BUILD_GOARCH GOOS=$BUILD_GOOS go test -bench=.; fi
