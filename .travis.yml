@@ -3,3 +3,8 @@ language: go
 go:
   - 1.5
   - tip
+
+install:
+  - sudo apt-get update -qq
+  - apt-get install libsdl2{,-mixer,-image,-ttf}-dev
+  - go get -v github.com/veandco/go-sdl2/sdl{,_mixer,_image,_ttf}
