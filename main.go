@@ -24,9 +24,9 @@ var (
 	currentTime   uint32 = 0          //Вреся перед началом запуска игрового цикла
 	countedFrames int    = 0          //Кадров в сек
 
-	particles [5]int
-	speed     int = 30
-	partNum   int = 1000
+	// particles [5]int
+	// speed     int = 30
+	// partNum   int = 1000
 
 	window   *sdl.Window
 	renderer *sdl.Renderer
