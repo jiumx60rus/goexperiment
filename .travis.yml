@@ -9,13 +9,8 @@ sudo: true
 env:
   - "PATH=/home/travis/gopath/bin:$PATH"
 before_install:
-  - gox -build-toolchain
   - sudo apt-get update -qq
   - apt-get install libsdl2{,-mixer,-image,-ttf}-dev
   - go get -v github.com/veandco/go-sdl2/sdl{,_mixer,_image,_ttf}
 script:
-  - go test -v -covermode=count -coverprofile=coverage.out ./...
-  - goveralls -coverprofile=coverage.out -service travis-ci -repotoken $COVERALLS_TOKEN
-after_success:
-  - gox -output "dist/{{.OS}}_{{.Arch}}_{{.Dir}}"
-  - ghr --username tcnksm-sample --token $GITHUB_TOKEN --replace --prerelease --debug pre-release dist/
+  - go build
